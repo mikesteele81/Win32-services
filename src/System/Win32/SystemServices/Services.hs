@@ -8,7 +8,7 @@ module System.Win32.SystemServices.Services
     , SERVICE_TYPE (..)
     , nO_ERROR
     , eRROR_SERVICE_SPECIFIC_ERROR
-    , registerServiceCtrlHandlerEx
+    , queryServiceStatus
     , setServiceStatus
     , startServiceCtrlDispatcher
     ) where
@@ -44,12 +44,24 @@ type HandlerFunction = HANDLE -> SERVICE_CONTROL -> IO Bool
 --   will be accepted. At this point the function may perform any other
 --   initialization steps before setting the service's status to
 --   'RUNNING'. All of this should take no more than 100ms.
-type ServiceMainFunction = String -> [String] -> IO ()
+type ServiceMainFunction = String -> [String] -> HANDLE -> IO ()
+
+-- |Retrieves the current status of the specified service.
+queryServiceStatus :: HANDLE
+    -- ^ MSDN documentation: A handle to the service. This handle is returned
+    -- by the OpenService or the CreateService function, and it must have the
+    -- SERVICE_QUERY_STATUS access right. For more information, see Service
+    -- Security and Access Rights.
+    -> IO SERVICE_STATUS
+    -- ^ This function will raise an exception if the Win32 call returned an
+    -- error condition.
+queryServiceStatus h = alloca $ \pStatus -> do
+    failIfFalse_ (unwords ["QueryServiceStatus"])
+        $ c_QueryServiceStatus h pStatus
+    peek pStatus
 
 -- | Register an handler function to be called whenever the operating system
 -- receives service control messages.
---
--- NOTE: This function creates a FunPtr which is never freed.
 registerServiceCtrlHandlerEx :: String
     -- ^ The name of the service. According to MSDN documentation this
     -- argument is unused in WIN32_OWN_PROCESS type services, which is the
@@ -63,16 +75,17 @@ registerServiceCtrlHandlerEx :: String
     -- ^ A Handler function to be called in response to service control
     -- messages. Behind the scenes this is translated into a "HandlerEx" type
     -- handler.
-    -> IO HANDLE
+    -> IO (HANDLE, LPHANDLER_FUNCTION_EX)
     -- ^ The returned handle may be used in calls to SetServiceStatus. For
     -- convenience Handler functions also receive a handle for the service.
 registerServiceCtrlHandlerEx str handler =
     withTString str $ \lptstr ->
-    mfix $ \hStatus -> do
-    -- FIXME: FunPtrs need to be manually freed
-    fpHandler <- handlerToFunPtr . toHandlerEx hStatus $ handler
-    failIfNull (unwords ["RegisterServiceCtrlHandlerEx", str])
+    -- use 'ret' instead of (h', _) to avoid divergence.
+    mfix $ \ret -> do
+    fpHandler <- handlerToFunPtr $ toHandlerEx (fst ret) handler
+    h <- failIfNull (unwords ["RegisterServiceCtrlHandlerEx", str])
         $ c_RegisterServiceCtrlHandlerEx lptstr fpHandler nullPtr
+    return (h, fpHandler)
 
 -- |Updates the service control manager's status information for the calling
 -- service.
@@ -107,6 +120,8 @@ startServiceCtrlDispatcher :: String
     -- MSDN description: The name of the service run by the calling thread.
     -- This is the service name that the service control program specified in
     -- the CreateService function when creating the service.
+    -> DWORD
+    -> HandlerFunction
     -> ServiceMainFunction
     -- ^ This is a callback function that will be called by the operating
     -- system whenever the service is started. It should perform service
@@ -118,19 +133,25 @@ startServiceCtrlDispatcher :: String
     -> IO ()
     -- ^ An exception will be raised if the underlying Win32 call returns an
     -- error condition.
-startServiceCtrlDispatcher name main =
+startServiceCtrlDispatcher name wh handler main =
     withTString name $ \lptstr ->
-    bracket (smfToFunPtr . toSMF $ main) freeHaskellFunPtr $ \fpMain ->
+    bracket (toSMF main handler wh >>= smfToFunPtr) freeHaskellFunPtr $ \fpMain ->
     withArray [SERVICE_TABLE_ENTRY lptstr fpMain, nullSTE] $ \pSTE ->
-    failIfFalse_ (unwords ["StartServiceCtrlDispatcher", name])
-    $ c_StartServiceCtrlDispatcher pSTE
+    failIfFalse_ (unwords ["StartServiceCtrlDispatcher", name]) $ do
+    c_StartServiceCtrlDispatcher pSTE
 
-toSMF :: ServiceMainFunction -> SERVICE_MAIN_FUNCTION
-toSMF f = \len -> \pLPTSTR -> do
+toSMF :: ServiceMainFunction -> HandlerFunction -> DWORD -> IO SERVICE_MAIN_FUNCTION
+toSMF f handler wh = return $ \len pLPTSTR -> do
     lptstrx <- peekArray (fromIntegral len) pLPTSTR
     args <- mapM peekTString lptstrx
     -- MSDN guarantees args will have at least 1 member.
-    f (head args) (tail args)
+    let name = head args
+    (h, fpHandler) <- registerServiceCtrlHandlerEx name handler
+    setServiceStatus h $ SERVICE_STATUS WIN32_OWN_PROCESS START_PENDING [] nO_ERROR 0 0 wh
+    f name (tail args) h
+    status <- queryServiceStatus h
+    setServiceStatus h $ status {currentState = STOPPED, controlsAccepted = []}
+    freeHaskellFunPtr fpHandler
 
 -- This was originally written with older style handle functions in mind.
 -- I'm now using HandlerEx style functions, and need to add support for

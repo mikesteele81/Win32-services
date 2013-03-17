@@ -81,4 +81,3 @@ instance Storable SERVICE_STATUS where
     poke (castPtr ptr `plusPtr` 16) ssec
     poke (castPtr ptr `plusPtr` 20) cp
     poke (castPtr ptr `plusPtr` 24) wh
-

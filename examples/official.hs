@@ -5,18 +5,15 @@ import System.Win32.SystemServices.Services
 import System.Win32.Types
 
 main :: IO ()
-main = startServiceCtrlDispatcher "Test" svcMain
-
-svcMain :: ServiceMainFunction
-svcMain name _ = do
+main = do
     gState <- newMVar (1, SERVICE_STATUS WIN32_OWN_PROCESS
                           START_PENDING [] nO_ERROR 0 0 3000)
     mStop <- newEmptyMVar
-    hStatus <- registerServiceCtrlHandlerEx name $ svcCtrlHandler mStop gState
-    
-    reportSvcStatus hStatus RUNNING nO_ERROR 0 gState
+    startServiceCtrlDispatcher "Test" 3000 (svcCtrlHandler mStop gState) $ svcMain mStop gState
+
+svcMain mStop gState _ _ h = do
+    reportSvcStatus h RUNNING nO_ERROR 0 gState
     takeMVar mStop
-    reportSvcStatus hStatus STOPPED nO_ERROR 0 gState
 
 reportSvcStatus :: HANDLE -> SERVICE_STATE -> DWORD -> DWORD
     -> MVar (DWORD, SERVICE_STATUS) -> IO ()
@@ -48,3 +45,4 @@ svcCtrlHandler mStop mState hStatus STOP = do
     return True
 svcCtrlHandler _ _ _ INTERROGATE = return True
 svcCtrlHandler _ _ _ _  = return False
+
