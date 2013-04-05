@@ -14,6 +14,7 @@ main = do
 svcMain mStop gState _ _ h = do
     reportSvcStatus h RUNNING nO_ERROR 0 gState
     takeMVar mStop
+    reportSvcStatus h STOPPED nO_ERROR 0 gState
 
 reportSvcStatus :: HANDLE -> SERVICE_STATE -> DWORD -> DWORD
     -> MVar (DWORD, SERVICE_STATUS) -> IO ()

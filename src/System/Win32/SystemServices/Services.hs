@@ -149,8 +149,6 @@ toSMF f handler wh = return $ \len pLPTSTR -> do
     (h, fpHandler) <- registerServiceCtrlHandlerEx name handler
     setServiceStatus h $ SERVICE_STATUS WIN32_OWN_PROCESS START_PENDING [] nO_ERROR 0 0 wh
     f name (tail args) h
-    status <- queryServiceStatus h
-    setServiceStatus h $ status {currentState = STOPPED, controlsAccepted = []}
     freeHaskellFunPtr fpHandler
 
 -- This was originally written with older style handle functions in mind.

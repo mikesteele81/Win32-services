@@ -1,6 +1,6 @@
 name:           Win32-services
 category:       System
-version:        0.2
+version:        0.2.1
 cabal-version:  >= 1.14
 build-type:     Simple
 author:         Michael Steele
@@ -15,7 +15,7 @@ stability:      provisional
 synopsis:       Windows service applications
 description:
   This package provides a partial binding to the Win32 System Services
-  API. It's now possible to write Windows service applications using
+  API. It makes it easy to write Windows service applications using
   Haskell.
   .
   The binding is partial. Here are a few ways in which it differs from the
@@ -53,6 +53,7 @@ description:
   &#x20;   startServiceCtrlDispatcher \"Test\" 3000 (handler mStop) $ \\_ _ h -> do
   &#x20;       setServiceStatus h running
   &#x20;       takeMVar mStop
+  &#x20;       setServiceStatus h stopped
   .
   handler mStop hStatus STOP = do
   &#x20;   setServiceStatus hStatus stopPending
@@ -62,9 +63,8 @@ description:
   handler _ _ _           = return False
   .
   running = SERVICE_STATUS WIN32_OWN_PROCESS RUNNING [ACCEPT_STOP] nO_ERROR 0 0 0
-  stopPending = running &#x7b; currentState = STOP_PENDING
-  &#x20;                     , controlsAccepted = []
-  &#x20;                     , waitHint = 3000 &#x7d;
+  stopped = SERVICE_STATUS WIN32_OWN_PROCESS STOPPED [] nO_ERROR 0 0 0
+  stopPending = SERVICE_STATUS WIN32_OWN_PROCESS START_PENDING [ACCEPT_STOP] nO_ERROR 0 0 0
   @
   .
   @
@@ -99,6 +99,13 @@ description:
   @
   .
   Release Notes:
+  .
+  Changes in 0.2.1
+  .
+  * bug fix: Services were failing to enter a STOPPED state. It is now the
+    user's responsibility to enter a stopped state in the service main function.
+    The 'startServiceCtrlDispatcher' function will continue to automatically put
+    the service into a START_PENDING state.
   .
   Changes in 0.2
   .

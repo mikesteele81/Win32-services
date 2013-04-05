@@ -8,6 +8,7 @@ main = do
     startServiceCtrlDispatcher "Test" 3000 (handler mStop) $ \_ _ h -> do
         setServiceStatus h running
         takeMVar mStop
+        setServiceStatus h stopped
 
 handler mStop hStatus STOP = do
     setServiceStatus hStatus stopPending
@@ -17,6 +18,5 @@ handler _ _ INTERROGATE = return True
 handler _ _ _           = return False
 
 running = SERVICE_STATUS WIN32_OWN_PROCESS RUNNING [ACCEPT_STOP] nO_ERROR 0 0 0
-stopPending = running { currentState = STOP_PENDING
-                      , controlsAccepted = []
-                      , waitHint = 3000 }
+stopped = SERVICE_STATUS WIN32_OWN_PROCESS STOPPED [] nO_ERROR 0 0 0
+stopPending = SERVICE_STATUS WIN32_OWN_PROCESS START_PENDING [ACCEPT_STOP] nO_ERROR 0 0 0
