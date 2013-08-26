@@ -1,6 +1,6 @@
 name:           Win32-services
 category:       System
-version:        0.2.1
+version:        0.2.2
 cabal-version:  >= 1.14
 build-type:     Simple
 author:         Michael Steele
@@ -10,7 +10,7 @@ homepage:       http://github.com/mikesteele81/win32-services
 bug-reports:    http://github.com/mikesteele81/win32-services/issues
 license:        BSD3
 license-file:   LICENSE
-tested-with:    GHC == 7.4.2
+tested-with:    GHC == 7.6.3
 stability:      provisional
 synopsis:       Windows service applications
 description:
