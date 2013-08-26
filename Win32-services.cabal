@@ -100,6 +100,10 @@ description:
   .
   Release Notes:
   .
+  Changes in 0.2.2
+  .
+  * Update library dependencies to support GHC 7.6.
+  .
   Changes in 0.2.1
   .
   * bug fix: Services were failing to enter a STOPPED state. It is now the
