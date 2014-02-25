@@ -1,11 +1,11 @@
 name:           Win32-services
 category:       System
-version:        0.2.2.1
+version:        0.2.3
 cabal-version:  >= 1.14
 build-type:     Simple
 author:         Michael Steele
 maintainer:     Michael Steele <mikesteele81@gmail.com>
-copyright:      Copyright (C) 2011-2013 Michael Steele
+copyright:      Copyright (C) 2011-2014 Michael Steele
 homepage:       http://github.com/mikesteele81/win32-services
 bug-reports:    http://github.com/mikesteele81/win32-services/issues
 license:        BSD3
