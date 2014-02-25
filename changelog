@@ -1,0 +1,35 @@
+# 0.2 series
+
+## 0.2.2
+
+* Update library dependencies to support GHC 7.6.
+
+## 0.2.1
+
+* bug fix: Services were failing to enter a STOPPED state. It is now the
+  user's responsibility to enter a stopped state in the service main function.
+  The 'startServiceCtrlDispatcher' function will continue to automatically put
+  the service into a START_PENDING state.
+
+## 0.2
+
+* Writing services of the WIN32_OWN_PROCESS type is now easier. Handler
+  registration is performed automatically. By the time the service main
+  function is entered, the service will already be in the 'START_PENDING'
+  state. It is the user's responsibility to enter the 'RUNNING' state as soon
+  as possible.
+
+* Once the service main function exits two things will occur. The service
+  will enter the 'STOPPED' state, and the handler function will be freed.
+
+* The 'registerServiceCtrlHandlerEx' function is no longer
+  exported. Handlers are registered automatically by the
+  'startServiceCtrlDispatcher' function.
+
+* The 'queryServiceStatus' function has been added.
+
+# 0.1 series
+
+## 0.1
+
+* First release
