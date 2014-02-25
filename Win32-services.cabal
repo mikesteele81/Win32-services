@@ -97,7 +97,9 @@ description:
   @
   Extra-Lib-Dirs: \"C:\\\\Program Files (x86)\\\\Windows Kits\\\\8.0\\\\Lib\\\\win8\\\\um\\\\x86\"
   @
-extra-source-files: examples/*.hs
+extra-source-files:
+    changelog
+    examples/*.hs
 
 source-repository head
   type: git
