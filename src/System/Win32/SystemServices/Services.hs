@@ -120,6 +120,9 @@ startServiceCtrlDispatcher :: String
     -- This is the service name that the service control program specified in
     -- the CreateService function when creating the service.
     -> DWORD
+    -- ^
+    -- [@waitHint@] The estimated time required for a pending start, stop,
+    -- pause, or continue operation, in milliseconds.
     -> HandlerFunction
     -> ServiceMainFunction
     -- ^ This is a callback function that will be called by the operating

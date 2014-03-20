@@ -1,3 +1,6 @@
+-- We refer to otherwise unused modules in documentation.
+{-# OPTIONS_GHC -fno-warn-unused-imports #-}
+
 module System.Win32.SystemServices.Services.SERVICE_ACCEPT
     ( SERVICE_ACCEPT (..)
     , pokeServiceAccept
@@ -10,38 +13,41 @@ import Text.Printf
 
 import Import
 
+-- Imported for haddocks
+import qualified System.Win32.SystemServices.Services.SERVICE_CONTROL as C
+
 -- | The control codes the service accepts and processes in its handler
 --   function (See 'HandlerFunction'). By default, all services accept the
---   'INTERROGATE' value. To accept the 'DEVICEEVENT' value, the service must
+--   'C.INTERROGATE' value. To accept the 'DEVICEEVENT' value, the service must
 --   register to receive device events by using the
 --   'registerDeviceNotification' function.
 data SERVICE_ACCEPT
     -- | The service is a network component that can accept changes in its
     --   binding without being stopped and restarted. This control code allows
-    --   the service to receive 'NETBINDADD', 'NETBINDREMOVE', 'NETBINDENABLE'
-    --   , and 'NETBINDDISABLE' notifications.
+    --   the service to receive 'C.NETBINDADD', 'C.NETBINDREMOVE',
+    --   'C.NETBINDENABLE', and 'C.NETBINDDISABLE' notifications.
     = ACCEPT_NETBINDCHANGE
     -- | The service can reread its startup parameters without being stopped
     --   and restarted. This control code allows the service to receive
-    --   'PARAMCHANGE' notifications.
+    --   'C.PARAMCHANGE' notifications.
     | ACCEPT_PARAMCHANGE
     -- | The service can be paused and continued. This control code allows the
-    --   service to receive 'PAUSE' and 'CONTINUE' notifications.
+    --   service to receive 'C.PAUSE' and 'C.CONTINUE' notifications.
     | ACCEPT_PAUSE_CONTINUE
     -- | MSDN documentation says that this function is not supported on
     --   Windows Server 2003 or Windows XP/2000. The support status on other
     --   versions is unknown to me.
     --
     --   The service can perform preshutdown tasks. This control code enables
-    --   the service to receive 'PRESHUTDOWN' notifications.
+    --   the service to receive 'C.PRESHUTDOWN' notifications.
     --   Note that only the system can send it.
     | ACCEPT_PRESHUTDOWN
     -- | The service is notified when system shutdown occurs. This control
-    --   code allows the service to receive 'SHUTDOWN' notifications. Note
+    --   code allows the service to receive 'C.SHUTDOWN' notifications. Note
     --   that only the system can send it.
     | ACCEPT_SHUTDOWN
     -- | The service can be stopped. This control code allows the service to
-    --   receive 'STOP' notifications.
+    --   receive 'C.STOP' notifications.
     | ACCEPT_STOP
     deriving (Show)
 
