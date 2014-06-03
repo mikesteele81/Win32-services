@@ -1,5 +1,11 @@
 # 0.2 series
 
+## 0.2.4
+
+* bug fix: eRROR_SERVICE_SPECIFIC_ERROR was mapped to the wrong code.
+
+* Add upper-version bounds to build dependencies.
+
 ## 0.2.3
 
 * Update library dependencies to support GHC 7.8.
