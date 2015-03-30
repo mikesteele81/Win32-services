@@ -16,7 +16,7 @@ synopsis:       Windows service applications
 description:
   This package provides a partial binding to the Win32 System Services
   API. It makes it easy to write Windows service applications using
-  Haskell.
+  Haskell. _Only 32-bit versions of GHC are supported at this time._
   .
   The binding is partial. Here are a few ways in which it differs from the
   official API:
