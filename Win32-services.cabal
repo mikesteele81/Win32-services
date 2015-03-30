@@ -5,7 +5,7 @@ cabal-version:  >= 1.16
 build-type:     Simple
 author:         Michael Steele
 maintainer:     Michael Steele <mikesteele81@gmail.com>
-copyright:      Copyright (C) 2011-2014 Michael Steele
+copyright:      Copyright 2011-2015 Michael Steele
 homepage:       http://github.com/mikesteele81/win32-services
 bug-reports:    http://github.com/mikesteele81/win32-services/issues
 license:        BSD3
