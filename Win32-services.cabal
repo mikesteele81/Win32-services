@@ -1,6 +1,6 @@
 name:           Win32-services
 category:       System
-version:        0.2.4
+version:        0.2.5
 cabal-version:  >= 1.16
 build-type:     Simple
 author:         Michael Steele
