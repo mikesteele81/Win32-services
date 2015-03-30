@@ -7,11 +7,11 @@ module System.Win32.SystemServices.Services.SERVICE_STATE
     , pokeServiceState
     ) where
 
-import Foreign
-import System.Win32.Types
 import Text.Printf
 
 import Control.Error
+
+import Import
 
 nO_ERROR :: ErrCode
 nO_ERROR = 0

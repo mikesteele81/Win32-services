@@ -1,11 +1,8 @@
 module System.Win32.SystemServices.Services.SERVICE_STATUS where
 
-import Control.Applicative
-import Foreign
-import System.Win32.Types
-
 import Control.Error
 
+import Import
 import System.Win32.SystemServices.Services.SERVICE_ACCEPT
 import System.Win32.SystemServices.Services.SERVICE_STATE
 import System.Win32.SystemServices.Services.SERVICE_TYPE

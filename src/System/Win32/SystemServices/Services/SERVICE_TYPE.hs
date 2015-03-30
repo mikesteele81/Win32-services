@@ -4,12 +4,11 @@ module System.Win32.SystemServices.Services.SERVICE_TYPE
     , pokeServiceType
     ) where
 
-import Foreign
-import System.Win32.Types (DWORD)
 import Text.Printf
 
 import Control.Error
 
+import Import
 
 -- | Win32 defines many types of services, but this binding only supports
 -- WIN32_OWN_PROCESS.

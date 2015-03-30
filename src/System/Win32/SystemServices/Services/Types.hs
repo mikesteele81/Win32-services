@@ -1,7 +1,6 @@
 module System.Win32.SystemServices.Services.Types where
 
-import Foreign.Ptr (FunPtr, Ptr)
-import System.Win32.Types
+import Import
 
 type HANDLER_FUNCTION_EX = DWORD -> DWORD -> Ptr () -> Ptr () -> IO DWORD
 type LPHANDLER_FUNCTION_EX = FunPtr HANDLER_FUNCTION_EX

@@ -4,14 +4,13 @@ module System.Win32.SystemServices.Services.SERVICE_ACCEPT
     , peekServiceAccept
     ) where
 
-import Control.Applicative
 import Data.Bits
 import Data.Maybe
-import Foreign
-import System.Win32.Types (DWORD)
 import Text.Printf
 
 import Control.Error
+
+import Import
 
 -- | The control codes the service accepts and processes in its handler
 --   function (See 'HandlerFunction'). By default, all services accept the

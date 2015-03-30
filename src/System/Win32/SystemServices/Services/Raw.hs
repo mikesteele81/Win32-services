@@ -2,9 +2,7 @@
 
 module System.Win32.SystemServices.Services.Raw where
 
-import Foreign.Ptr (Ptr)
-import System.Win32.Types
-
+import Import
 import System.Win32.SystemServices.Services.SERVICE_STATUS
 import System.Win32.SystemServices.Services.SERVICE_TABLE_ENTRY
 import System.Win32.SystemServices.Services.Types

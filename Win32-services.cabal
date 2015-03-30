@@ -115,7 +115,9 @@ library
   Exposed-Modules: System.Win32.SystemServices.Services
   Extra-Libraries: Advapi32
   Extra-Lib-Dirs: c:\Windows\System32
-  other-modules: System.Win32.SystemServices.Services.SERVICE_STATUS
+  other-modules:
+                 Import
+               , System.Win32.SystemServices.Services.SERVICE_STATUS
                , System.Win32.SystemServices.Services.Raw
                , System.Win32.SystemServices.Services.SERVICE_TABLE_ENTRY
                , System.Win32.SystemServices.Services.Types

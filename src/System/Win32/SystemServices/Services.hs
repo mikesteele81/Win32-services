@@ -15,9 +15,8 @@ module System.Win32.SystemServices.Services
 
 import Control.Exception
 import Control.Monad.Fix
-import Foreign
-import System.Win32.Types
 
+import Import
 import System.Win32.SystemServices.Services.Raw
 import System.Win32.SystemServices.Services.SERVICE_ACCEPT
 import System.Win32.SystemServices.Services.SERVICE_CONTROL

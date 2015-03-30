@@ -5,11 +5,11 @@ module System.Win32.SystemServices.Services.SERVICE_CONTROL
     , fromDWORD
     ) where
 
-import Foreign
-import System.Win32.Types (DWORD)
 import Text.Printf
 
 import Control.Error
+
+import Import
 
 -- | A SERVICE_CONTROL is used in Handler functions. All control codes are
 --   defined here, but some can only be used with a 'HandlerEx' callback.

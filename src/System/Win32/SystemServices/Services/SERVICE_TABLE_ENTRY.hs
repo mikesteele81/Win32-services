@@ -1,9 +1,6 @@
 module System.Win32.SystemServices.Services.SERVICE_TABLE_ENTRY where
 
-import Control.Applicative
-import Foreign
-import System.Win32.Types
-
+import Import
 import System.Win32.SystemServices.Services.Types
 
 data SERVICE_TABLE_ENTRY = SERVICE_TABLE_ENTRY
