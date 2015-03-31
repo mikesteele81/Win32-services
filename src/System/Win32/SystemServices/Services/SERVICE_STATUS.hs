@@ -69,28 +69,35 @@ instance Storable SERVICE_STATUS where
       -- calls to runScript from the "errors" package. This results in a
       -- line being printed to stderr and process termination on a left value.
       -- Service applications do not have stderr.
-      est <- peekServiceType pST
-      eca <- peekServiceState pCS
+      est <- peekServiceType (pST ptr)
+      eca <- peekServiceState (pCS ptr)
       case (,) <$> est <*> eca of
         Left e -> do
           -- runScript would call this on error.
           hPutStrLn stderr e
           exitFailure
-        Right (st, ca) -> SERVICE_STATUS st ca <$> peekServiceAccept pCA
-          <*> peek pEC <*> peek pSSEC <*> peek pCP <*> peek pWH
-    where
-      pST = castPtr ptr
-      pCS = castPtr ptr `plusPtr` 4
-      pCA = castPtr ptr `plusPtr` 8
-      pEC = castPtr ptr `plusPtr` 12
-      pSSEC = castPtr ptr `plusPtr` 16
-      pCP = castPtr ptr `plusPtr` 20
-      pWH = castPtr ptr `plusPtr` 24
+        Right (st, ca) -> SERVICE_STATUS st ca
+          <$> (peekServiceAccept . pCA) ptr
+          <*> (peek . pEC) ptr
+          <*> (peek . pSSEC) ptr
+          <*> (peek . pCP) ptr
+          <*> (peek . pWH) ptr
   poke ptr (SERVICE_STATUS st cs ca ec ssec cp wh) = do
-    pokeServiceType (castPtr ptr) st
-    pokeServiceState (castPtr ptr `plusPtr` 4) cs
-    pokeServiceAccept (castPtr ptr `plusPtr` 8)  ca
-    poke (castPtr ptr `plusPtr` 12) ec
-    poke (castPtr ptr `plusPtr` 16) ssec
-    poke (castPtr ptr `plusPtr` 20) cp
-    poke (castPtr ptr `plusPtr` 24) wh
+    pokeServiceType (pST ptr) st
+    pokeServiceState (pCS ptr) cs
+    pokeServiceAccept (pCA ptr) ca
+    poke (pEC ptr) ec
+    poke (pSSEC ptr) ssec
+    poke (pCP ptr) cp
+    poke (pWH ptr) wh
+
+pST, pCS, pCA, pEC, pSSEC, pCP, pWH
+    :: Ptr SERVICE_STATUS -> Ptr DWORD
+
+pST   =                  castPtr
+pCS   = (`plusPtr` 4)  . castPtr
+pCA   = (`plusPtr` 8)  . castPtr
+pEC   = (`plusPtr` 12) . castPtr
+pSSEC = (`plusPtr` 16) . castPtr
+pCP   = (`plusPtr` 20) . castPtr
+pWH   = (`plusPtr` 24) . castPtr
