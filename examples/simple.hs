@@ -17,6 +17,6 @@ handler mStop hStatus STOP = do
 handler _ _ INTERROGATE = return True
 handler _ _ _           = return False
 
-running = SERVICE_STATUS WIN32_OWN_PROCESS RUNNING [ACCEPT_STOP] nO_ERROR 0 0 0
-stopped = SERVICE_STATUS WIN32_OWN_PROCESS STOPPED [] nO_ERROR 0 0 0
-stopPending = SERVICE_STATUS WIN32_OWN_PROCESS STOP_PENDING [ACCEPT_STOP] nO_ERROR 0 0 0
+running = ServiceStatus WIN32_OWN_PROCESS Running [ACCEPT_STOP] nO_ERROR 0 0 0
+stopped = ServiceStatus WIN32_OWN_PROCESS Stopped [] nO_ERROR 0 0 0
+stopPending = ServiceStatus WIN32_OWN_PROCESS StopPending [ACCEPT_STOP] nO_ERROR 0 0 0

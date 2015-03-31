@@ -11,14 +11,14 @@ import System.Win32.Services.State
 import System.Win32.Services.Type
 
 -- | Contains status information for a service.
-data SERVICE_STATUS = SERVICE_STATUS
-    { serviceType             :: SERVICE_TYPE
-    -- ^ The type of service. This binding only supports the WIN32_OWN_PROCESS
+data ServiceStatus = ServiceStatus
+    { serviceType             :: ServiceType
+    -- ^ The type of service. This binding only supports the 'Win32OwnProcess'
     -- type.
-    , currentState            :: SERVICE_STATE
+    , currentState            :: ServiceState
     -- ^ The current state of the service.
-    , controlsAccepted        :: [SERVICE_ACCEPT]
-    -- ^ See 'SERVICE_ACCEPT' for details on this field.
+    , controlsAccepted        :: [ServiceAccept]
+    -- ^ See 'ServiceAccept' for details on this field.
     , win32ExitCode           :: DWORD
     -- ^ The error code the service uses to report an error that occurs when
     --   it is starting or stopping. To return an error code specific to the
@@ -59,7 +59,7 @@ data SERVICE_STATUS = SERVICE_STATUS
     --   services sharing the process as well.
     } deriving (Show)
 
-instance Storable SERVICE_STATUS where
+instance Storable ServiceStatus where
   sizeOf _ = 28
   alignment _ = 4
   peek ptr = do
@@ -76,13 +76,13 @@ instance Storable SERVICE_STATUS where
           -- runScript would call this on error.
           hPutStrLn stderr e
           exitFailure
-        Right (st, cs) -> SERVICE_STATUS st cs
+        Right (st, cs) -> ServiceStatus st cs
           <$> (peekServiceAccept . pCA) ptr
           <*> (peek . pEC) ptr
           <*> (peek . pSSEC) ptr
           <*> (peek . pCP) ptr
           <*> (peek . pWH) ptr
-  poke ptr (SERVICE_STATUS st cs ca ec ssec cp wh) = do
+  poke ptr (ServiceStatus st cs ca ec ssec cp wh) = do
     pokeServiceType (pST ptr) st
     pokeServiceState (pCS ptr) cs
     pokeServiceAccept (pCA ptr) ca
@@ -92,7 +92,7 @@ instance Storable SERVICE_STATUS where
     poke (pWH ptr) wh
 
 pST, pCS, pCA, pEC, pSSEC, pCP, pWH
-    :: Ptr SERVICE_STATUS -> Ptr DWORD
+    :: Ptr ServiceStatus -> Ptr DWORD
 
 pST   =                  castPtr
 pCS   = (`plusPtr` 4)  . castPtr

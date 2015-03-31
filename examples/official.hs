@@ -6,18 +6,18 @@ import System.Win32.Types
 
 main :: IO ()
 main = do
-    gState <- newMVar (1, SERVICE_STATUS WIN32_OWN_PROCESS
-                          START_PENDING [] nO_ERROR 0 0 3000)
+    gState <- newMVar (1, ServiceStatus WIN32_OWN_PROCESS
+                          StartPending [] nO_ERROR 0 0 3000)
     mStop <- newEmptyMVar
     startServiceCtrlDispatcher "Test" 3000 (svcCtrlHandler mStop gState) $ svcMain mStop gState
 
 svcMain mStop gState _ _ h = do
-    reportSvcStatus h RUNNING nO_ERROR 0 gState
+    reportSvcStatus h Running nO_ERROR 0 gState
     takeMVar mStop
-    reportSvcStatus h STOPPED nO_ERROR 0 gState
+    reportSvcStatus h Stopped nO_ERROR 0 gState
 
-reportSvcStatus :: HANDLE -> SERVICE_STATE -> DWORD -> DWORD
-    -> MVar (DWORD, SERVICE_STATUS) -> IO ()
+reportSvcStatus :: HANDLE -> ServiceState -> DWORD -> DWORD
+    -> MVar (DWORD, ServiceStatus) -> IO ()
 reportSvcStatus hStatus state win32ExitCode waitHint mState = do
     modifyMVar_ mState $ \(checkPoint, svcStatus) -> do
         let state' = nextState (checkPoint, svcStatus
@@ -27,21 +27,21 @@ reportSvcStatus hStatus state win32ExitCode waitHint mState = do
         setServiceStatus hStatus (snd state')
         return state'
 
-nextState :: (DWORD, SERVICE_STATUS) -> (DWORD, SERVICE_STATUS)
+nextState :: (DWORD, ServiceStatus) -> (DWORD, ServiceStatus)
 nextState (checkPoint, svcStatus) = case (currentState svcStatus) of 
-    START_PENDING -> (checkPoint + 1, svcStatus
+    StartPending -> (checkPoint + 1, svcStatus
         { controlsAccepted = [], checkPoint = checkPoint + 1 })
-    RUNNING -> (checkPoint, svcStatus
+    Running -> (checkPoint, svcStatus
         { controlsAccepted = [ACCEPT_STOP], checkPoint = 0 })
-    STOPPED -> (checkPoint, svcStatus
+    Stopped -> (checkPoint, svcStatus
         { controlsAccepted = [], checkPoint = 0 })
     _ -> (checkPoint + 1, svcStatus
         { controlsAccepted = [], checkPoint = checkPoint + 1 })
 
-svcCtrlHandler :: MVar () -> MVar (DWORD, SERVICE_STATUS)
+svcCtrlHandler :: MVar () -> MVar (DWORD, ServiceStatus)
     -> HandlerFunction
 svcCtrlHandler mStop mState hStatus STOP = do
-    reportSvcStatus hStatus STOP_PENDING nO_ERROR 3000 mState
+    reportSvcStatus hStatus StopPending nO_ERROR 3000 mState
     putMVar mStop ()
     return True
 svcCtrlHandler _ _ _ INTERROGATE = return True

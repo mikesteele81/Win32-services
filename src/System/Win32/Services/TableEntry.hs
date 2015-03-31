@@ -4,15 +4,15 @@ import Import
 
 type SERVICE_MAIN_FUNCTION = DWORD -> Ptr LPTSTR -> IO ()
 
-data SERVICE_TABLE_ENTRY = SERVICE_TABLE_ENTRY
+data ServiceTableEntry = ServiceTableEntry
     { serviceName :: LPWSTR
     , serviceProc :: FunPtr SERVICE_MAIN_FUNCTION
     }
 
-instance Storable SERVICE_TABLE_ENTRY where
+instance Storable ServiceTableEntry where
   sizeOf _ = 8
   alignment _ = 4
-  peek ptr = SERVICE_TABLE_ENTRY <$> peek pServiceName <*> peek pServiceProc
+  peek ptr = ServiceTableEntry <$> peek pServiceName <*> peek pServiceProc
     where
       pServiceName = castPtr ptr
       pServiceProc = castPtr ptr `plusPtr` 4
@@ -23,5 +23,5 @@ instance Storable SERVICE_TABLE_ENTRY where
       pServiceName = castPtr ptr
       pServiceProc = castPtr ptr `plusPtr` 4
 
-nullSTE :: SERVICE_TABLE_ENTRY
-nullSTE = SERVICE_TABLE_ENTRY nullPtr nullFunPtr
+nullSTE :: ServiceTableEntry
+nullSTE = ServiceTableEntry nullPtr nullFunPtr

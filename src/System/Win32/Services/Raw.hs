@@ -19,7 +19,7 @@ foreign import stdcall "wrapper"
 --   _Out_  LPSERVICE_STATUS lpServiceStatus
 -- );
 foreign import stdcall "windows.h QueryServiceStatus"
-    c_QueryServiceStatus :: HANDLE -> Ptr SERVICE_STATUS -> IO BOOL
+    c_QueryServiceStatus :: HANDLE -> Ptr ServiceStatus -> IO BOOL
 
 -- I've not been able to get RegisterServiceCtrlHandler to work on Windows 7 64-bit.
 foreign import stdcall "windows.h RegisterServiceCtrlHandlerExW"
@@ -27,7 +27,7 @@ foreign import stdcall "windows.h RegisterServiceCtrlHandlerExW"
         :: LPTSTR -> FunPtr HANDLER_FUNCTION_EX -> Ptr () -> IO HANDLE
 
 foreign import stdcall "windows.h SetServiceStatus"
-    c_SetServiceStatus :: HANDLE -> Ptr SERVICE_STATUS -> IO BOOL
+    c_SetServiceStatus :: HANDLE -> Ptr ServiceStatus -> IO BOOL
 
 foreign import stdcall "windows.h StartServiceCtrlDispatcherW"
-    c_StartServiceCtrlDispatcher :: Ptr SERVICE_TABLE_ENTRY -> IO BOOL
+    c_StartServiceCtrlDispatcher :: Ptr ServiceTableEntry -> IO BOOL
