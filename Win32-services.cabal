@@ -111,16 +111,17 @@ library
   default-language: Haskell2010
   ghc-options:     -Wall
   hs-source-dirs: src
-  Exposed-Modules: System.Win32.SystemServices.Services
+  Exposed-Modules: System.Win32.Services
   Extra-Libraries: Advapi32
   Extra-Lib-Dirs: c:\Windows\System32
   other-modules:
                  Import
-               , System.Win32.SystemServices.Services.SERVICE_STATUS
-               , System.Win32.SystemServices.Services.Raw
-               , System.Win32.SystemServices.Services.SERVICE_TABLE_ENTRY
-               , System.Win32.SystemServices.Services.Types
-               , System.Win32.SystemServices.Services.SERVICE_ACCEPT
-               , System.Win32.SystemServices.Services.SERVICE_CONTROL
-               , System.Win32.SystemServices.Services.SERVICE_STATE
-               , System.Win32.SystemServices.Services.SERVICE_TYPE
+               , System.Win32.Services.Raw
+               , System.Win32.Services.Accept
+               , System.Win32.Services.Control
+               , System.Win32.Services.State
+               , System.Win32.Services.Status
+               , System.Win32.Services.TableEntry
+               , System.Win32.Services.Type
+               , System.Win32.Services.Types
+

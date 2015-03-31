@@ -1,4 +1,4 @@
-module System.Win32.SystemServices.Services.Types where
+module System.Win32.Services.Types where
 
 import Import
 

@@ -1,4 +1,4 @@
-module System.Win32.SystemServices.Services.SERVICE_STATE
+module System.Win32.Services.State
     ( SERVICE_STATE (..)
     , nO_ERROR
     , eRROR_CALL_NOT_IMPLEMENTED

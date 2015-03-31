@@ -1,11 +1,11 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
 
-module System.Win32.SystemServices.Services.Raw where
+module System.Win32.Services.Raw where
 
 import Import
-import System.Win32.SystemServices.Services.SERVICE_STATUS
-import System.Win32.SystemServices.Services.SERVICE_TABLE_ENTRY
-import System.Win32.SystemServices.Services.Types
+import System.Win32.Services.Status
+import System.Win32.Services.TableEntry
+import System.Win32.Services.Types
 
 foreign import stdcall "wrapper"
     smfToFunPtr :: SERVICE_MAIN_FUNCTION -> IO LPSERVICE_MAIN_FUNCTION

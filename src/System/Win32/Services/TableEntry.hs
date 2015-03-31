@@ -1,7 +1,7 @@
-module System.Win32.SystemServices.Services.SERVICE_TABLE_ENTRY where
+module System.Win32.Services.TableEntry where
 
 import Import
-import System.Win32.SystemServices.Services.Types
+import System.Win32.Services.Types
 
 data SERVICE_TABLE_ENTRY = SERVICE_TABLE_ENTRY
     { serviceName :: LPWSTR

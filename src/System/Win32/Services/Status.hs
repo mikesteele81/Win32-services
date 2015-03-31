@@ -1,4 +1,4 @@
-module System.Win32.SystemServices.Services.SERVICE_STATUS where
+module System.Win32.Services.Status where
 
 -- These two imports are here to preserve existing behavior now that
 -- the dependency on "errors" has been dropped.
@@ -6,9 +6,9 @@ import System.Exit
 import System.IO
 
 import Import
-import System.Win32.SystemServices.Services.SERVICE_ACCEPT
-import System.Win32.SystemServices.Services.SERVICE_STATE
-import System.Win32.SystemServices.Services.SERVICE_TYPE
+import System.Win32.Services.Accept
+import System.Win32.Services.State
+import System.Win32.Services.Type
 
 -- | Contains status information for a service.
 data SERVICE_STATUS = SERVICE_STATUS

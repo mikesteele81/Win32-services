@@ -1,7 +1,7 @@
 -- We refer to otherwise unused modules in documentation.
 {-# OPTIONS_GHC -fno-warn-unused-imports #-}
 
-module System.Win32.SystemServices.Services.SERVICE_ACCEPT
+module System.Win32.Services.Accept
     ( SERVICE_ACCEPT (..)
     , pokeServiceAccept
     , peekServiceAccept
@@ -14,7 +14,7 @@ import Text.Printf
 import Import
 
 -- Imported for haddocks
-import qualified System.Win32.SystemServices.Services.SERVICE_CONTROL as C
+import qualified System.Win32.Services.Control as C
 
 -- | The control codes the service accepts and processes in its handler
 --   function (See 'HandlerFunction'). By default, all services accept the

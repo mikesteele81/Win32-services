@@ -1,4 +1,4 @@
-module System.Win32.SystemServices.Services
+module System.Win32.Services
     ( HandlerFunction
     , ServiceMainFunction
     , SERVICE_ACCEPT (..)
@@ -17,15 +17,15 @@ import Control.Exception
 import Control.Monad.Fix
 
 import Import
-import System.Win32.SystemServices.Services.Raw
-import System.Win32.SystemServices.Services.SERVICE_ACCEPT
-import System.Win32.SystemServices.Services.SERVICE_CONTROL
-import qualified System.Win32.SystemServices.Services.SERVICE_CONTROL as SC
-import System.Win32.SystemServices.Services.SERVICE_STATE
-import System.Win32.SystemServices.Services.SERVICE_STATUS
-import System.Win32.SystemServices.Services.SERVICE_TABLE_ENTRY
-import System.Win32.SystemServices.Services.SERVICE_TYPE
-import System.Win32.SystemServices.Services.Types
+import System.Win32.Services.Raw
+import System.Win32.Services.Accept
+import System.Win32.Services.Control
+import qualified System.Win32.Services.Control as SC
+import System.Win32.Services.State
+import System.Win32.Services.Status
+import System.Win32.Services.TableEntry
+import System.Win32.Services.Type
+import System.Win32.Services.Types
 
 -- | A handler function is registered with the service dispatcher thread
 --   from a 'ServiceMainFunction'. The first argument is a 'HANDLE' returned

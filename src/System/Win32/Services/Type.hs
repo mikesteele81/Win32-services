@@ -1,4 +1,4 @@
-module System.Win32.SystemServices.Services.SERVICE_TYPE
+module System.Win32.Services.Type
     ( SERVICE_TYPE (..)
     , peekServiceType
     , pokeServiceType

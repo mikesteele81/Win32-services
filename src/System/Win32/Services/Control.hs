@@ -1,4 +1,4 @@
-module System.Win32.SystemServices.Services.SERVICE_CONTROL
+module System.Win32.Services.Control
     ( SERVICE_CONTROL (..)
     , peekServiceControl
     , pokeServiceControl
