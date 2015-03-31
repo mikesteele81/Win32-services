@@ -8,8 +8,6 @@ import Data.Bits
 import Data.Maybe
 import Text.Printf
 
-import Control.Error
-
 import Import
 
 -- | The control codes the service accepts and processes in its handler

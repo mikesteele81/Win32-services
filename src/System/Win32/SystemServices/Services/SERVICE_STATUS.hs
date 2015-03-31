@@ -1,6 +1,9 @@
 module System.Win32.SystemServices.Services.SERVICE_STATUS where
 
-import Control.Error
+-- These two imports are here to preserve existing behavior now that
+-- the dependency on "errors" has been dropped.
+import System.Exit
+import System.IO
 
 import Import
 import System.Win32.SystemServices.Services.SERVICE_ACCEPT
@@ -59,9 +62,22 @@ data SERVICE_STATUS = SERVICE_STATUS
 instance Storable SERVICE_STATUS where
   sizeOf _ = 28
   alignment _ = 4
-  peek ptr = SERVICE_STATUS <$> (runScript . peekServiceType) pST
-      <*> (runScript . peekServiceState) pCS <*> peekServiceAccept pCA
-      <*> peek pEC <*> peek pSSEC <*> peek pCP <*> peek pWH
+  peek ptr = do
+      -- This block is not ideal. It is here to preserve backwards
+      -- compatibility with former behavior, and will be replaced in a future
+      -- version. We used to wrap peekServiceType and peekServiceState in
+      -- calls to runScript from the "errors" package. This results in a
+      -- line being printed to stderr and process termination on a left value.
+      -- Service applications do not have stderr.
+      est <- peekServiceType pST
+      eca <- peekServiceState pCS
+      case (,) <$> est <*> eca of
+        Left e -> do
+          -- runScript would call this on error.
+          hPutStrLn stderr e
+          exitFailure
+        Right (st, ca) -> SERVICE_STATUS st ca <$> peekServiceAccept pCA
+          <*> peek pEC <*> peek pSSEC <*> peek pCP <*> peek pWH
     where
       pST = castPtr ptr
       pCS = castPtr ptr `plusPtr` 4

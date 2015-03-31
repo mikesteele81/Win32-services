@@ -6,8 +6,6 @@ module System.Win32.SystemServices.Services.SERVICE_TYPE
 
 import Text.Printf
 
-import Control.Error
-
 import Import
 
 -- | Win32 defines many types of services, but this binding only supports
@@ -45,10 +43,8 @@ fromDWORD 0x00000020 = Right WIN32_SHARE_PROCESS
 fromDWORD 0x00000100 = Right SERVICE_INTERACTIVE_PROCESS
 fromDWORD x = Left $ "Invalid SERVICE_TYPE: " ++ printf "%x" x
 
-peekServiceType :: Ptr DWORD -> Script SERVICE_TYPE
-peekServiceType ptr = do
-    dword <- scriptIO $ peek ptr
-    hoistEither $ fromDWORD dword
+peekServiceType :: Ptr DWORD -> IO (Either String SERVICE_TYPE)
+peekServiceType ptr = fromDWORD <$> peek ptr
 
 pokeServiceType :: Ptr DWORD -> SERVICE_TYPE -> IO ()
 pokeServiceType ptr x = poke ptr . toDWORD $ x

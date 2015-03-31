@@ -7,8 +7,6 @@ module System.Win32.SystemServices.Services.SERVICE_CONTROL
 
 import Text.Printf
 
-import Control.Error
-
 import Import
 
 -- | A SERVICE_CONTROL is used in Handler functions. All control codes are
@@ -20,10 +18,8 @@ data SERVICE_CONTROL = CONTINUE | INTERROGATE | NETBINDADD | NETBINDDISABLE
     | PRESHUTDOWN | SHUTDOWN | STOP
     deriving (Show)
 
-peekServiceControl :: Ptr DWORD -> IO SERVICE_CONTROL
-peekServiceControl ptr = runScript $ do
-    dword <- scriptIO $ peek ptr
-    hoistEither $ fromDWORD dword
+peekServiceControl :: Ptr DWORD -> IO (Either String SERVICE_CONTROL)
+peekServiceControl ptr = fromDWORD <$> peek ptr
 
 pokeServiceControl :: Ptr DWORD -> SERVICE_CONTROL -> IO ()
 pokeServiceControl ptr sc = poke ptr . toDWORD $ sc
