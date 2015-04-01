@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module System.Win32.Services
     ( HandlerFunction
     , ServiceMainFunction
@@ -6,8 +8,6 @@ module System.Win32.Services
     , ServiceState (..)
     , ServiceStatus (..)
     , ServiceType (..)
-    , nO_ERROR
-    , eRROR_SERVICE_SPECIFIC_ERROR
     , queryServiceStatus
     , setServiceStatus
     , startServiceCtrlDispatcher
@@ -51,11 +51,16 @@ queryServiceStatus :: HANDLE
     -- SERVICE_QUERY_STATUS access right. For more information, see Service
     -- Security and Access Rights.
     -> IO ServiceStatus
-    -- ^ This function will raise an exception if the Win32 call returned an
-    -- error condition.
+    -- ^ This function will throw an 'Win32Exception' when the internal
+    -- Win32 call returnes an error condition. MSDN lists the following
+    -- exceptions, but others might be thrown as well:
+    --
+    --   [@'AccessDenied'@] The handle does not have the
+    --   SERVICE_QUERY_STATUS access right.
+    --
+    --   [@'InvalidHandle'@] The handle is invalid.
 queryServiceStatus h = alloca $ \pStatus -> do
-    failIfFalse_ (unwords ["QueryServiceStatus"])
-        $ c_QueryServiceStatus h pStatus
+    failIfFalse_ "QueryServiceStatus" $ c_QueryServiceStatus h pStatus
     peek pStatus
 
 -- | Register an handler function to be called whenever the operating system
@@ -74,14 +79,18 @@ registerServiceCtrlHandlerEx :: String
     -- messages. Behind the scenes this is translated into a "HandlerEx" type
     -- handler.
     -> IO (HANDLE, FunPtr HANDLER_FUNCTION_EX)
-    -- ^ The returned handle may be used in calls to SetServiceStatus. For
-    -- convenience Handler functions also receive a handle for the service.
+    -- ^ This function will throw an 'Win32Exception' when the internal
+    -- Win32 call returnes an error condition. MSDN lists the following
+    -- exceptions, but others might be thrown as well:
+    --
+    --   [@'ServiceNotInExe'@] The service entry was specified incorrectly
+    --   when the process called 'startServiceCtrlDispatcher'.
 registerServiceCtrlHandlerEx str handler =
     withTString str $ \lptstr ->
     -- use 'ret' instead of (h', _) to avoid divergence.
     mfix $ \ret -> do
     fpHandler <- handlerToFunPtr $ toHandlerEx (fst ret) handler
-    h <- failIfNull (unwords ["RegisterServiceCtrlHandlerEx", str])
+    h <- failIfNull "RegisterServiceCtrlHandlerEx"
         $ c_RegisterServiceCtrlHandlerEx lptstr fpHandler nullPtr
     return (h, fpHandler)
 
@@ -95,12 +104,17 @@ setServiceStatus :: HANDLE
     -- ^ MSDN documentation: A pointer to the SERVICE_STATUS structure the
     -- contains the latest status information for the calling service.
     -> IO ()
-    -- ^ This function will raise an exception if the Win32 call returned an
-    -- error condition.
+    -- ^ This function will throw an 'Win32Exception' when the internal Win32
+    -- call returnes an error condition. MSDN lists the following exceptions,
+    -- but others might be thrown as well:
+    --
+    --   [@'InvalidData'@] The specified service status structure is invalid.
+    --
+    --   [@'InvalidHandle'@] The specified handle is invalid.
 setServiceStatus h status =
-    with status $ \pStatus -> do
-    failIfFalse_ (unwords ["SetServiceStatus", show h, show status])
-        $ c_SetServiceStatus h pStatus
+    with status $ \pStatus ->
+    failIfFalse_ "SetServiceStatus"
+    $ c_SetServiceStatus h pStatus
 
 -- |Register a callback function to initialize the service, which will be
 -- called by the operating system immediately. startServiceCtrlDispatcher
@@ -132,14 +146,28 @@ startServiceCtrlDispatcher :: String
     -- In the official example the service main function blocks until the
     -- service is ready to stop.
     -> IO ()
-    -- ^ An exception will be raised if the underlying Win32 call returns an
-    -- error condition.
+    -- ^ This function will throw an 'Win32Exception' when the internal Win32
+    -- call returnes an error condition. MSDN lists the following exceptions,
+    -- but others might be thrown as well:
+    --
+    --   ['FailedServiceControllerConnect']
+    --   This error is returned if the program is being run as a console
+    --   application rather than as a service. If the program will be run as
+    --   a console application for debugging purposes, structure it such that
+    --   service-specific code is not called when this error is returned.
+    --
+    --   ['InvalidData'] The specified dispatch table contains entries
+    --   that are not in the proper format.
+    --
+    --   ['ServiceAlreadyRunning'] The process has already called
+    --   @startServiceCtrlDispatcher@. Each process can call
+    --   @startServiceCtrlDispatcher@ only one time.
 startServiceCtrlDispatcher name wh handler main =
     withTString name $ \lptstr ->
     bracket (toSMF main handler wh >>= smfToFunPtr) freeHaskellFunPtr $ \fpMain ->
     withArray [ServiceTableEntry lptstr fpMain, nullSTE] $ \pSTE ->
-    failIfFalse_ (unwords ["StartServiceCtrlDispatcher", name]) $ do
-    c_StartServiceCtrlDispatcher pSTE
+    failIfFalse_ "StartServiceCtrlDispatcher"
+    $ c_StartServiceCtrlDispatcher pSTE
 
 toSMF :: ServiceMainFunction -> HandlerFunction -> DWORD -> IO SERVICE_MAIN_FUNCTION
 toSMF f handler wh = return $ \len pLPTSTR -> do
@@ -148,7 +176,7 @@ toSMF f handler wh = return $ \len pLPTSTR -> do
     -- MSDN guarantees args will have at least 1 member.
     let name = head args
     (h, fpHandler) <- registerServiceCtrlHandlerEx name handler
-    setServiceStatus h $ ServiceStatus Win32OwnProcess StartPending [] nO_ERROR 0 0 wh
+    setServiceStatus h $ ServiceStatus Win32OwnProcess StartPending [] Success 0 0 wh
     f name (tail args) h
     freeHaskellFunPtr fpHandler
 
@@ -161,11 +189,11 @@ toHandlerEx h f = \dwControl _ _ _ ->
       Right control -> do
           handled <- f h control
           case control of
-            Interrogate -> return nO_ERROR
+            Interrogate -> return $ toDWORD Success
             -- If we ever support extended control codes this will have to
             -- change. see "Dev Center - Desktop > Docs > Desktop app
             -- development documentation > System Services > Services >
             -- Service Reference > Service Functions > HandlerEx".
-            _ -> return $ if handled then nO_ERROR
-                                     else eRROR_CALL_NOT_IMPLEMENTED
-      Left _ -> return eRROR_CALL_NOT_IMPLEMENTED
+            _ -> return $ if handled then toDWORD Success
+                                     else toDWORD CallNotImplemented
+      Left _ -> return $ toDWORD CallNotImplemented

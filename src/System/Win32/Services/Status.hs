@@ -16,19 +16,19 @@ data ServiceStatus = ServiceStatus
     -- ^ The current state of the service.
     , controlsAccepted        :: [ServiceAccept]
     -- ^ See 'ServiceAccept' for details on this field.
-    , win32ExitCode           :: DWORD
+    , win32ExitCode           :: E.ErrCode
     -- ^ The error code the service uses to report an error that occurs when
     --   it is starting or stopping. To return an error code specific to the
     --   service, the service must set this value to
-    --   'eRROR_SERVICE_SPECIFIC_ERROR' to indicate that the
+    --   'E.ServiceSpecificError' to indicate that the
     --   'serviceSpecificExitCode' member contains the error code. The service
-    --   should set this value to 'nO_ERROR' when it is running and on normal
+    --   should set this value to 'E.Success' when it is running and on normal
     --   termination.
     , serviceSpecificExitCode :: DWORD
     -- ^ A service-specific error code that the service returns when an error
     -- occurs while the service is starting or stopping. This value is
     -- ignored unless the 'win32ExitCode' member is set to
-    -- 'eRROR_SERVICE_SPECIFIC_ERROR'.
+    -- 'E.ServiceSpecificError'.
     --
     -- This binding does not support service-specific error codes.
     , checkPoint              :: DWORD
@@ -76,9 +76,8 @@ instance Storable ServiceStatus where
     poke (pCP ptr) cp
     poke (pWH ptr) wh
 
-pCA, pEC, pSSEC, pCP, pWH :: Ptr ServiceStatus -> Ptr DWORD
+pCA, pSSEC, pCP, pWH :: Ptr ServiceStatus -> Ptr DWORD
 pCA   = (`plusPtr` 8)  . castPtr
-pEC   = (`plusPtr` 12) . castPtr
 pSSEC = (`plusPtr` 16) . castPtr
 pCP   = (`plusPtr` 20) . castPtr
 pWH   = (`plusPtr` 24) . castPtr
@@ -90,3 +89,6 @@ pST = castPtr
 pCS :: Ptr ServiceStatus -> Ptr ServiceState
 {-# INLINE pCS #-}
 pCS = (`plusPtr` 4)  . castPtr
+
+pEC :: Ptr ServiceStatus -> Ptr E.ErrCode
+pEC   = (`plusPtr` 12) . castPtr

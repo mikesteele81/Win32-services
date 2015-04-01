@@ -1,22 +1,10 @@
 module System.Win32.Services.State
     ( ServiceState (..)
-    , nO_ERROR
-    , eRROR_CALL_NOT_IMPLEMENTED
-    , eRROR_SERVICE_SPECIFIC_ERROR
     ) where
 
 import Text.Printf
 
 import Import
-
-nO_ERROR :: ErrCode
-nO_ERROR = 0
-
-eRROR_CALL_NOT_IMPLEMENTED :: ErrCode
-eRROR_CALL_NOT_IMPLEMENTED = 0x78
-
-eRROR_SERVICE_SPECIFIC_ERROR :: ErrCode
-eRROR_SERVICE_SPECIFIC_ERROR = 0x42a
 
 -- | The current state of a service.
 data ServiceState = ContinuePending | PausePending | Paused | Running
