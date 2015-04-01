@@ -70,13 +70,13 @@ instance Storable SERVICE_STATUS where
       -- line being printed to stderr and process termination on a left value.
       -- Service applications do not have stderr.
       est <- peekServiceType (pST ptr)
-      eca <- peekServiceState (pCS ptr)
-      case (,) <$> est <*> eca of
+      ecs <- peekServiceState (pCS ptr)
+      case (,) <$> est <*> ecs of
         Left e -> do
           -- runScript would call this on error.
           hPutStrLn stderr e
           exitFailure
-        Right (st, ca) -> SERVICE_STATUS st ca
+        Right (st, cs) -> SERVICE_STATUS st cs
           <$> (peekServiceAccept . pCA) ptr
           <*> (peek . pEC) ptr
           <*> (peek . pSSEC) ptr
