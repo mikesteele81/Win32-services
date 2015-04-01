@@ -1,12 +1,12 @@
 module Main where
 
 import Control.Concurrent.MVar
-import System.Win32.SystemServices.Services
+import System.Win32.Services
 import System.Win32.Types
 
 main :: IO ()
 main = do
-    gState <- newMVar (1, ServiceStatus WIN32_OWN_PROCESS
+    gState <- newMVar (1, ServiceStatus Win32OwnProcess
                           StartPending [] nO_ERROR 0 0 3000)
     mStop <- newEmptyMVar
     startServiceCtrlDispatcher "Test" 3000 (svcCtrlHandler mStop gState) $ svcMain mStop gState
@@ -32,7 +32,7 @@ nextState (checkPoint, svcStatus) = case (currentState svcStatus) of
     StartPending -> (checkPoint + 1, svcStatus
         { controlsAccepted = [], checkPoint = checkPoint + 1 })
     Running -> (checkPoint, svcStatus
-        { controlsAccepted = [ACCEPT_STOP], checkPoint = 0 })
+        { controlsAccepted = [AcceptStop], checkPoint = 0 })
     Stopped -> (checkPoint, svcStatus
         { controlsAccepted = [], checkPoint = 0 })
     _ -> (checkPoint + 1, svcStatus
@@ -40,10 +40,10 @@ nextState (checkPoint, svcStatus) = case (currentState svcStatus) of
 
 svcCtrlHandler :: MVar () -> MVar (DWORD, ServiceStatus)
     -> HandlerFunction
-svcCtrlHandler mStop mState hStatus STOP = do
+svcCtrlHandler mStop mState hStatus Stop = do
     reportSvcStatus hStatus StopPending nO_ERROR 3000 mState
     putMVar mStop ()
     return True
-svcCtrlHandler _ _ _ INTERROGATE = return True
+svcCtrlHandler _ _ _ Interrogate = return True
 svcCtrlHandler _ _ _ _  = return False
 

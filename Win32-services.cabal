@@ -46,7 +46,7 @@ description:
   module Main where
   .
   import Control.Concurrent.MVar
-  import System.Win32.SystemServices.Services
+  import System.Win32.Services
   .
   main = do
   &#x20;   mStop <- newEmptyMVar
@@ -55,16 +55,16 @@ description:
   &#x20;       takeMVar mStop
   &#x20;       setServiceStatus h stopped
   .
-  handler mStop hStatus STOP = do
+  handler mStop hStatus Stop = do
   &#x20;   setServiceStatus hStatus stopPending
   &#x20;   putMVar mStop ()
   &#x20;   return True
-  handler _ _ INTERROGATE = return True
+  handler _ _ Interrogate = return True
   handler _ _ _           = return False
   .
-  running = ServiceStatus WIN32_OWN_PROCESS RUNNING [ACCEPT_STOP] nO_ERROR 0 0 0
-  stopped = ServiceStatus WIN32_OWN_PROCESS STOPPED [] nO_ERROR 0 0 0
-  stopPending = ServiceStatus WIN32_OWN_PROCESS STOP_PENDING [ACCEPT_STOP] nO_ERROR 0 0 0
+  running = ServiceStatus Win32OwnProcess Running [AcceptStop] nO_ERROR 0 0 0
+  stopped = ServiceStatus Win32OwnProcess Stopped [] nO_ERROR 0 0 0
+  stopPending = ServiceStatus Win32OwnProcess StopPending [AcceptStop] nO_ERROR 0 0 0
   @
   .
   @
