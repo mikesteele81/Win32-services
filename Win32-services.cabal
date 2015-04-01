@@ -22,7 +22,7 @@ description:
   official API:
   .
   * Only services running within their own process are supported. These are
-  processes of the 'WIN32_OWN_PROCESS' type.
+  processes of the "WIN32_OWN_PROCESS" type.
   .
   * In cases where multiple versions of the same function exist (for
   compatibility), this binding only offers one of them.
