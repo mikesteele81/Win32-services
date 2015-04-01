@@ -157,7 +157,7 @@ toSMF f handler wh = return $ \len pLPTSTR -> do
 -- the extra parameters here.
 toHandlerEx :: HANDLE -> HandlerFunction -> HANDLER_FUNCTION_EX
 toHandlerEx h f = \dwControl _ _ _ ->
-    case SC.fromDWORD dwControl of
+    case SC.marshIn dwControl of
       Right control -> do
           handled <- f h control
           case control of

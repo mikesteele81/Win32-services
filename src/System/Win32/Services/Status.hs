@@ -1,9 +1,6 @@
 module System.Win32.Services.Status where
 
--- These two imports are here to preserve existing behavior now that
--- the dependency on "errors" has been dropped.
-import System.Exit
-import System.IO
+import qualified System.Win32.Error as E
 
 import Import
 import System.Win32.Services.Accept
@@ -62,42 +59,34 @@ data ServiceStatus = ServiceStatus
 instance Storable ServiceStatus where
   sizeOf _ = 28
   alignment _ = 4
-  peek ptr = do
-      -- This block is not ideal. It is here to preserve backwards
-      -- compatibility with former behavior, and will be replaced in a future
-      -- version. We used to wrap peekServiceType and peekServiceState in
-      -- calls to runScript from the "errors" package. This results in a
-      -- line being printed to stderr and process termination on a left value.
-      -- Service applications do not have stderr.
-      est <- peekServiceType (pST ptr)
-      ecs <- peekServiceState (pCS ptr)
-      case (,) <$> est <*> ecs of
-        Left e -> do
-          -- runScript would call this on error.
-          hPutStrLn stderr e
-          exitFailure
-        Right (st, cs) -> ServiceStatus st cs
-          <$> (peekServiceAccept . pCA) ptr
-          <*> (peek . pEC) ptr
-          <*> (peek . pSSEC) ptr
-          <*> (peek . pCP) ptr
-          <*> (peek . pWH) ptr
+  peek ptr = ServiceStatus
+    <$> (peek . pST) ptr
+    <*> (peek . pCS) ptr
+    <*> (peekServiceAccept . pCA) ptr
+    <*> (peek . pEC) ptr
+    <*> (peek . pSSEC) ptr
+    <*> (peek . pCP) ptr
+    <*> (peek . pWH) ptr
   poke ptr (ServiceStatus st cs ca ec ssec cp wh) = do
-    pokeServiceType (pST ptr) st
-    pokeServiceState (pCS ptr) cs
+    poke (pST ptr) st
+    poke (pCS ptr) cs
     pokeServiceAccept (pCA ptr) ca
     poke (pEC ptr) ec
     poke (pSSEC ptr) ssec
     poke (pCP ptr) cp
     poke (pWH ptr) wh
 
-pST, pCS, pCA, pEC, pSSEC, pCP, pWH
-    :: Ptr ServiceStatus -> Ptr DWORD
-
-pST   =                  castPtr
-pCS   = (`plusPtr` 4)  . castPtr
+pCA, pEC, pSSEC, pCP, pWH :: Ptr ServiceStatus -> Ptr DWORD
 pCA   = (`plusPtr` 8)  . castPtr
 pEC   = (`plusPtr` 12) . castPtr
 pSSEC = (`plusPtr` 16) . castPtr
 pCP   = (`plusPtr` 20) . castPtr
 pWH   = (`plusPtr` 24) . castPtr
+
+pST :: Ptr ServiceStatus -> Ptr ServiceType
+{-# INLINE pST #-}
+pST = castPtr
+
+pCS :: Ptr ServiceStatus -> Ptr ServiceState
+{-# INLINE pCS #-}
+pCS = (`plusPtr` 4)  . castPtr

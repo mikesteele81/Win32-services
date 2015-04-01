@@ -57,28 +57,30 @@ peekServiceAccept ptr = unflag <$> peek ptr
 pokeServiceAccept :: Ptr DWORD -> [ServiceAccept] -> IO ()
 pokeServiceAccept ptr sas = poke ptr . flag $ sas
 
-toDWORD :: ServiceAccept -> DWORD
-toDWORD AcceptNetBindChange = 0x00000010
-toDWORD AcceptParamChange   = 0x00000008
-toDWORD AcceptPauseContinue = 0x00000002
-toDWORD AcceptPreshutdown   = 0x00000100
-toDWORD AcceptShutdown      = 0x00000004
-toDWORD AcceptStop          = 0x00000001
+-- | Marshal a ServiceAccept "out" to be used in C-land
+marshOut :: ServiceAccept -> DWORD
+marshOut AcceptNetBindChange = 0x00000010
+marshOut AcceptParamChange   = 0x00000008
+marshOut AcceptPauseContinue = 0x00000002
+marshOut AcceptPreshutdown   = 0x00000100
+marshOut AcceptShutdown      = 0x00000004
+marshOut AcceptStop          = 0x00000001
 
-fromDWORD :: DWORD -> Either String ServiceAccept
-fromDWORD 0x00000010 = Right AcceptNetBindChange
-fromDWORD 0x00000008 = Right AcceptParamChange
-fromDWORD 0x00000002 = Right AcceptPauseContinue
-fromDWORD 0x00000100 = Right AcceptPreshutdown
-fromDWORD 0x00000004 = Right AcceptShutdown
-fromDWORD 0x00000001 = Right AcceptStop
-fromDWORD 0x00000020 = unsupported "SERVICE_ACCEPT_HARDWAREPROFILECHANGE"
-fromDWORD 0x00000040 = unsupported "SERVICE_ACCEPT_POWEREVENT"
-fromDWORD 0x00000080 = unsupported "SERVICE_ACCEPT_SESSIONCHANGE"
-fromDWORD 0x00000200 = unsupported "SERVICE_ACCEPT_TIMECHANGE"
-fromDWORD 0x00000400 = unsupported "SERVICE_ACCEPT_TRIGGEREVENT"
-fromDWORD 0x00000800 = unsupported "SERVICE_ACCEPT_USERMODEREBOOT"
-fromDWORD x = Left $ "The " ++ printf "%x" x ++ " control code is undocumented."
+-- | Marshall a DWORD "in" to be used in Haskell-land as a ServiceAccept
+marshIn :: DWORD -> Either String ServiceAccept
+marshIn 0x00000010 = Right AcceptNetBindChange
+marshIn 0x00000008 = Right AcceptParamChange
+marshIn 0x00000002 = Right AcceptPauseContinue
+marshIn 0x00000100 = Right AcceptPreshutdown
+marshIn 0x00000004 = Right AcceptShutdown
+marshIn 0x00000001 = Right AcceptStop
+marshIn 0x00000020 = unsupported "SERVICE_ACCEPT_HARDWAREPROFILECHANGE"
+marshIn 0x00000040 = unsupported "SERVICE_ACCEPT_POWEREVENT"
+marshIn 0x00000080 = unsupported "SERVICE_ACCEPT_SESSIONCHANGE"
+marshIn 0x00000200 = unsupported "SERVICE_ACCEPT_TIMECHANGE"
+marshIn 0x00000400 = unsupported "SERVICE_ACCEPT_TRIGGEREVENT"
+marshIn 0x00000800 = unsupported "SERVICE_ACCEPT_USERMODEREBOOT"
+marshIn x = Left $ "The " ++ printf "%x" x ++ " control code is undocumented."
 
 unsupported :: String -> Either String a
 unsupported name = Left $ "The " ++ name ++ " control code is unsupported by this binding."
@@ -87,9 +89,9 @@ unsupported name = Left $ "The " ++ name ++ " control code is unsupported by thi
 --   is masked off and converted into a value. Any failures are silently
 --   discarded.
 unflag :: DWORD -> [ServiceAccept]
-unflag f = mapMaybe (hush . fromDWORD . (.&. f)) masks
+unflag f = mapMaybe (hush . marshIn . (.&. f)) masks
   where
     masks = take 32 $ iterate (`shiftL` 1) 1
 
 flag :: [ServiceAccept] -> DWORD
-flag fs = foldl (\flag' f -> flag' .|. toDWORD f) 0 fs
+flag fs = foldl (\flag' f -> flag' .|. marshOut f) 0 fs

@@ -3,8 +3,6 @@ module System.Win32.Services.State
     , nO_ERROR
     , eRROR_CALL_NOT_IMPLEMENTED
     , eRROR_SERVICE_SPECIFIC_ERROR
-    , peekServiceState
-    , pokeServiceState
     ) where
 
 import Text.Printf
@@ -25,28 +23,34 @@ data ServiceState = ContinuePending | PausePending | Paused | Running
     | StartPending | StopPending | Stopped
     deriving (Eq, Show)
 
-fromDWORD :: DWORD -> Either String ServiceState
-fromDWORD 5 = Right ContinuePending
-fromDWORD 6 = Right PausePending
-fromDWORD 7 = Right Paused
-fromDWORD 4 = Right Running
-fromDWORD 2 = Right StartPending
-fromDWORD 3 = Right StopPending
-fromDWORD 1 = Right Stopped
-fromDWORD x = Left $ "Unable to interpret " ++ printf "%x" x
-                  ++ " as a SERVICE_STATE."
+-- |State is stored as a DWORD value in memory.  If an undocument value is
+-- encountered during a 'peek', there isn't any reasonable way to respond, so
+-- an 'ErrorCall' exception will be thrown.
+instance Storable ServiceState where
+  sizeOf _ = sizeOf (undefined :: DWORD)
+  alignment _ = alignment (undefined :: DWORD)
+  peek ptr = marshIn <$> (peek . pDWORD) ptr
+  poke ptr state = poke (pDWORD ptr) (marshOut state)
 
-toDWORD :: ServiceState -> DWORD
-toDWORD Stopped = 0x00000001
-toDWORD StartPending = 0x00000002
-toDWORD StopPending = 0x00000003
-toDWORD Running = 0x00000004
-toDWORD ContinuePending = 0x00000005
-toDWORD PausePending = 0x00000006
-toDWORD Paused = 0x00000007
+pDWORD :: Ptr ServiceState -> Ptr DWORD
+{-# INLINE pDWORD #-}
+pDWORD = castPtr
 
-peekServiceState :: Ptr DWORD -> IO (Either String ServiceState)
-peekServiceState ptr = fromDWORD <$> peek ptr
+marshIn :: DWORD -> ServiceState
+marshIn 5 = ContinuePending
+marshIn 6 = PausePending
+marshIn 7 = Paused
+marshIn 4 = Running
+marshIn 2 = StartPending
+marshIn 3 = StopPending
+marshIn 1 = Stopped
+marshIn x = error $ printf "%x is not a valid SERVICE_STATE value." x
 
-pokeServiceState :: Ptr DWORD -> ServiceState -> IO ()
-pokeServiceState ptr sc = poke ptr . toDWORD $ sc
+marshOut :: ServiceState -> DWORD
+marshOut Stopped = 0x00000001
+marshOut StartPending = 0x00000002
+marshOut StopPending = 0x00000003
+marshOut Running = 0x00000004
+marshOut ContinuePending = 0x00000005
+marshOut PausePending = 0x00000006
+marshOut Paused = 0x00000007

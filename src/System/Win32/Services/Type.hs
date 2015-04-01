@@ -1,7 +1,5 @@
 module System.Win32.Services.Type
     ( ServiceType (..)
-    , peekServiceType
-    , pokeServiceType
     ) where
 
 import Text.Printf
@@ -28,23 +26,27 @@ data ServiceType
     | ServiceInteractiveProcess
     deriving (Show)
 
-toDWORD :: ServiceType -> DWORD
-toDWORD FileSystemDriver          = 0x00000002
-toDWORD KernelDriver              = 0x00000001
-toDWORD Win32OwnProcess           = 0x00000010
-toDWORD Win32ShareProcess         = 0x00000020
-toDWORD ServiceInteractiveProcess = 0x00000100
+instance Storable ServiceType where
+  sizeOf _ = sizeOf (undefined :: DWORD)
+  alignment _ = alignment (undefined :: DWORD)
+  peek ptr = marshIn <$> (peek . pDWORD) ptr
+  poke ptr t = poke (pDWORD ptr) (marshOut t)
 
-fromDWORD :: DWORD -> Either String ServiceType
-fromDWORD 0x00000002 = Right FileSystemDriver
-fromDWORD 0x00000001 = Right KernelDriver
-fromDWORD 0x00000010 = Right Win32OwnProcess
-fromDWORD 0x00000020 = Right Win32ShareProcess
-fromDWORD 0x00000100 = Right ServiceInteractiveProcess
-fromDWORD x = Left $ "Invalid SERVICE_TYPE: " ++ printf "%x" x
+pDWORD :: Ptr ServiceType -> Ptr DWORD
+{-# INLINE pDWORD #-}
+pDWORD = castPtr
 
-peekServiceType :: Ptr DWORD -> IO (Either String ServiceType)
-peekServiceType ptr = fromDWORD <$> peek ptr
+marshOut :: ServiceType -> DWORD
+marshOut FileSystemDriver          = 0x00000002
+marshOut KernelDriver              = 0x00000001
+marshOut Win32OwnProcess           = 0x00000010
+marshOut Win32ShareProcess         = 0x00000020
+marshOut ServiceInteractiveProcess = 0x00000100
 
-pokeServiceType :: Ptr DWORD -> ServiceType -> IO ()
-pokeServiceType ptr x = poke ptr . toDWORD $ x
+marshIn :: DWORD -> ServiceType
+marshIn 0x00000002 = FileSystemDriver
+marshIn 0x00000001 = KernelDriver
+marshIn 0x00000010 = Win32OwnProcess
+marshIn 0x00000020 = Win32ShareProcess
+marshIn 0x00000100 = ServiceInteractiveProcess
+marshIn x = error $ printf "Invalid SERVICE_TYPE: %x" x
