@@ -1,7 +1,8 @@
 module System.Win32.Services.TableEntry where
 
 import Import
-import System.Win32.Services.Types
+
+type SERVICE_MAIN_FUNCTION = DWORD -> Ptr LPTSTR -> IO ()
 
 data SERVICE_TABLE_ENTRY = SERVICE_TABLE_ENTRY
     { serviceName :: LPWSTR

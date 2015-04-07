@@ -123,5 +123,3 @@ library
                , System.Win32.Services.Status
                , System.Win32.Services.TableEntry
                , System.Win32.Services.Type
-               , System.Win32.Services.Types
-

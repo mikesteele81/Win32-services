@@ -5,13 +5,14 @@ module System.Win32.Services.Raw where
 import Import
 import System.Win32.Services.Status
 import System.Win32.Services.TableEntry
-import System.Win32.Services.Types
+
+type HANDLER_FUNCTION_EX = DWORD -> DWORD -> Ptr () -> Ptr () -> IO DWORD
 
 foreign import stdcall "wrapper"
-    smfToFunPtr :: SERVICE_MAIN_FUNCTION -> IO LPSERVICE_MAIN_FUNCTION
+    smfToFunPtr :: SERVICE_MAIN_FUNCTION -> IO (FunPtr SERVICE_MAIN_FUNCTION)
 
 foreign import stdcall "wrapper"
-    handlerToFunPtr :: HANDLER_FUNCTION_EX -> IO LPHANDLER_FUNCTION_EX
+    handlerToFunPtr :: HANDLER_FUNCTION_EX -> IO (FunPtr HANDLER_FUNCTION_EX)
 
 -- BOOL WINAPI QueryServiceStatus(
 --   _In_   SC_HANDLE hService,
@@ -22,7 +23,8 @@ foreign import stdcall "windows.h QueryServiceStatus"
 
 -- I've not been able to get RegisterServiceCtrlHandler to work on Windows 7 64-bit.
 foreign import stdcall "windows.h RegisterServiceCtrlHandlerExW"
-    c_RegisterServiceCtrlHandlerEx :: LPTSTR -> LPHANDLER_FUNCTION_EX  -> Ptr () -> IO HANDLE
+    c_RegisterServiceCtrlHandlerEx
+        :: LPTSTR -> FunPtr HANDLER_FUNCTION_EX -> Ptr () -> IO HANDLE
 
 foreign import stdcall "windows.h SetServiceStatus"
     c_SetServiceStatus :: HANDLE -> Ptr SERVICE_STATUS -> IO BOOL

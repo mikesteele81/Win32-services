@@ -25,7 +25,6 @@ import System.Win32.Services.State
 import System.Win32.Services.Status
 import System.Win32.Services.TableEntry
 import System.Win32.Services.Type
-import System.Win32.Services.Types
 
 -- | A handler function is registered with the service dispatcher thread
 --   from a 'ServiceMainFunction'. The first argument is a 'HANDLE' returned
@@ -74,7 +73,7 @@ registerServiceCtrlHandlerEx :: String
     -- ^ A Handler function to be called in response to service control
     -- messages. Behind the scenes this is translated into a "HandlerEx" type
     -- handler.
-    -> IO (HANDLE, LPHANDLER_FUNCTION_EX)
+    -> IO (HANDLE, FunPtr HANDLER_FUNCTION_EX)
     -- ^ The returned handle may be used in calls to SetServiceStatus. For
     -- convenience Handler functions also receive a handle for the service.
 registerServiceCtrlHandlerEx str handler =
