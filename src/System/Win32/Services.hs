@@ -170,15 +170,18 @@ startServiceCtrlDispatcher name wh handler main =
     $ c_StartServiceCtrlDispatcher pSTE
 
 toSMF :: ServiceMainFunction -> HandlerFunction -> DWORD -> IO SERVICE_MAIN_FUNCTION
-toSMF f handler wh = return $ \len pLPTSTR -> do
-    lptstrx <- peekArray (fromIntegral len) pLPTSTR
-    args <- mapM peekTString lptstrx
+toSMF f handler wh = return $ \argc argv -> do
+    args <- convertToListOfStrings argc argv
     -- MSDN guarantees args will have at least 1 member.
     let name = head args
     (h, fpHandler) <- registerServiceCtrlHandlerEx name handler
     setServiceStatus h $ ServiceStatus Win32OwnProcess StartPending [] Success 0 0 wh
     f name (tail args) h
     freeHaskellFunPtr fpHandler
+  where convertToListOfStrings length' pLPTSTR = do
+          lptstrx <- peekArray (fromIntegral length') pLPTSTR
+          mapM peekTString lptstrx
+
 
 -- This was originally written with older style handle functions in mind.
 -- I'm now using HandlerEx style functions, and need to add support for

@@ -3,20 +3,21 @@ module Main where
 import Control.Concurrent.MVar
 import System.Win32.Services
 import System.Win32.Types
+import qualified System.Win32.Error as E
 
 main :: IO ()
 main = do
     gState <- newMVar (1, ServiceStatus Win32OwnProcess
-                          StartPending [] nO_ERROR 0 0 3000)
+                          StartPending [] E.Success 0 0 3000)
     mStop <- newEmptyMVar
     startServiceCtrlDispatcher "Test" 3000 (svcCtrlHandler mStop gState) $ svcMain mStop gState
 
 svcMain mStop gState _ _ h = do
-    reportSvcStatus h Running nO_ERROR 0 gState
+    reportSvcStatus h Running E.Success 0 gState
     takeMVar mStop
-    reportSvcStatus h Stopped nO_ERROR 0 gState
+    reportSvcStatus h Stopped E.Success 0 gState
 
-reportSvcStatus :: HANDLE -> ServiceState -> DWORD -> DWORD
+reportSvcStatus :: HANDLE -> ServiceState -> E.ErrCode -> DWORD
     -> MVar (DWORD, ServiceStatus) -> IO ()
 reportSvcStatus hStatus state win32ExitCode waitHint mState = do
     modifyMVar_ mState $ \(checkPoint, svcStatus) -> do
@@ -28,7 +29,7 @@ reportSvcStatus hStatus state win32ExitCode waitHint mState = do
         return state'
 
 nextState :: (DWORD, ServiceStatus) -> (DWORD, ServiceStatus)
-nextState (checkPoint, svcStatus) = case (currentState svcStatus) of 
+nextState (checkPoint, svcStatus) = case (currentState svcStatus) of
     StartPending -> (checkPoint + 1, svcStatus
         { controlsAccepted = [], checkPoint = checkPoint + 1 })
     Running -> (checkPoint, svcStatus
@@ -41,9 +42,8 @@ nextState (checkPoint, svcStatus) = case (currentState svcStatus) of
 svcCtrlHandler :: MVar () -> MVar (DWORD, ServiceStatus)
     -> HandlerFunction
 svcCtrlHandler mStop mState hStatus Stop = do
-    reportSvcStatus hStatus StopPending nO_ERROR 3000 mState
+    reportSvcStatus hStatus StopPending E.Success 3000 mState
     putMVar mStop ()
     return True
 svcCtrlHandler _ _ _ Interrogate = return True
 svcCtrlHandler _ _ _ _  = return False
-
