@@ -1,5 +1,11 @@
 # 0.2 series
 
+## 0.2.5.2
+
+* Make it work with 64-bit GHC.
+
+* Update examples, to use ErrCode and Success from System.Win32.Error
+
 ## 0.2.5.1
 
 * bugfix in "simple" example.
