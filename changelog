@@ -1,10 +1,23 @@
-# 0.2 series
+# 0.4 series
 
-## 0.2.5.2
+## 0.4
+
+* First released version that works for 64-bit GHC.
+  Before it only worked with 32-bit GHC.
+
+# 0.3 series
+
+## 0.3.1
 
 * Make it work with 64-bit GHC.
 
 * Update examples, to use ErrCode and Success from System.Win32.Error
+
+## 0.3
+
+* Bumped the version number.
+
+# 0.2 series
 
 ## 0.2.5.1
 
