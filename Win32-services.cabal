@@ -1,16 +1,16 @@
 name:           Win32-services
 category:       System
-version:        0.3.1
-cabal-version:  >= 1.16
+version:        0.4
+cabal-version:  1.16
 build-type:     Simple
 author:         Michael Steele
 maintainer:     Michael Steele <mikesteele81@gmail.com>
-copyright:      Copyright 2011-2015 Michael Steele
+copyright:      Copyright 2011-2018 Michael Steele
 homepage:       http://github.com/mikesteele81/win32-services
 bug-reports:    http://github.com/mikesteele81/win32-services/issues
 license:        BSD3
 license-file:   LICENSE
-tested-with:    GHC == 7.6.3, GHC == 7.8.3, GHC == 7.10.1, GHC == 8.2.2
+tested-with:    GHC == 7.6.3, GHC == 7.8.3, GHC == 7.10.1, GHC == 8.2.2, GHC == 8.4.3
 stability:      provisional
 synopsis:       Windows service applications
 description:
@@ -88,8 +88,11 @@ description:
   .
   Installation Notes:
   .
-  Depending on which version of Windows and the Windows SDK you are using the
-  .cabal file will need to be modified before installing. A simple `cabal
+  Depending on which version of GHC you are using you may also need to add
+  a extra-lib-dirs directive. In GHC version 8.4.3 it works out of the box with
+  the libadvapi32.a file in ...\\mingw\\x86_64-w64-mingw32\\lib.
+  For older version you need to use a version from a Windows SDK. Your
+  .cabal file will then need to be modified before installing. A simple `cabal
   install Win32-services` may not work. For example, If you are building on
   Windows 8 64-bit with the Windows 8 SDK the 'extra-lib-dirs' field will need
   to be changed to read as follows:
@@ -100,10 +103,12 @@ description:
   .
   If building with stack an option is to set it in stack.yaml.
   For example with the Windows 10 SDK installed with Build Tools for Visual Studio 2017:
+  .
   @
   extra-lib-dirs:
   - C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\10.0.15063.0\\um\\x64
   @
+  .
 
 extra-source-files:
     changelog
@@ -115,7 +120,7 @@ source-repository head
 
 library
   build-depends: base   >= 4.5 && < 5.0
-               , Win32  >= 2.2 && < 2.6
+               , Win32  >= 2.2 && < 2.8
                , Win32-errors >= 0.2 && < 0.3
   default-language: Haskell2010
   ghc-options:     -Wall
