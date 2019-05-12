@@ -1,6 +1,6 @@
 name:           Win32-services
 category:       System
-version:        0.4
+version:        0.4.0.1
 cabal-version:  1.16
 build-type:     Simple
 author:         Michael Steele
@@ -10,13 +10,13 @@ homepage:       http://github.com/mikesteele81/win32-services
 bug-reports:    http://github.com/mikesteele81/win32-services/issues
 license:        BSD3
 license-file:   LICENSE
-tested-with:    GHC == 7.6.3, GHC == 7.8.3, GHC == 7.10.1, GHC == 8.2.2, GHC == 8.4.3
+tested-with:    GHC == 7.6.3, GHC == 7.8.3, GHC == 7.10.1, GHC == 8.2.2, GHC == 8.4.3, GHC == 8.6.5
 stability:      provisional
 synopsis:       Windows service applications
 description:
   This package provides a partial binding to the Win32 System Services
   API. It makes it easy to write Windows service applications using
-  Haskell. _This is the first version that supports both 32-bit and 64-bit versions of GHC._
+  Haskell. This version supports both 32-bit and 64-bit versions of GHC.
   .
   The binding is partial. Here are a few ways in which it differs from the
   official API:
@@ -120,7 +120,7 @@ source-repository head
 
 library
   build-depends: base   >= 4.5 && < 5.0
-               , Win32  >= 2.2 && < 2.8
+               , Win32  >= 2.2 && < 2.9
                , Win32-errors >= 0.2 && < 0.3
   default-language: Haskell2010
   ghc-options:     -Wall

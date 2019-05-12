@@ -1,5 +1,9 @@
 # 0.4 series
 
+## 0.4.0.1
+
+* Update library dependencies to support GHC 8.6.5
+
 ## 0.4
 
 * First released version that works for 64-bit GHC.
